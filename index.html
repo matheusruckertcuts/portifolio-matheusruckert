@@ -65,7 +65,6 @@
   .reveal.d3{transition-delay:.3s}
   @media (prefers-reduced-motion:reduce){
     .reveal,.reveal.from-left,.reveal.from-right{opacity:1;transform:none;transition:none}
-    .rotator-wrap .word{transition:none}
   }
 
   /* ---------- BARRA DE PROGRESSO ---------- */
@@ -333,7 +332,6 @@
   .pm-track img:nth-child(even){animation-delay:2.75s}
   .pm-track img:hover{border-color:#2A3550;filter:brightness(1.12)}
   @keyframes pmbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-  @media (prefers-reduced-motion:reduce){.pm-track img{animation:none}}
   @keyframes pmscroll{to{transform:translateX(-50%)}}
     @media (max-width:800px){
     .creatives{grid-template-columns:1fr}
@@ -455,7 +453,7 @@
 <header>
   <div class="wrap">
     <p class="eyebrow reveal"><span class="dot"></span>Matheus Rückert</p>
-    <h1 class="display reveal d1"><span class="h1-line">Sua audiência decide em 3 segundos.</span><span class="h1-line">Eu edito para <span class="rotator-wrap" id="rotator-wrap"><span class="word" id="rotator">reter</span></span></span></h1>
+    <h1 class="display reveal d1"><span class="h1-line">Vídeos que param o scroll</span><span class="h1-line">e geram <span class="rotator-wrap" id="rotator-wrap"><span class="word" id="rotator">resultado</span></span></span></h1>
     <p class="hero-sub reveal d2">Edição orientada a métricas, não a estética. <strong>+15 milhões de visualizações</strong> e mais de 50 marcas atendidas em 1 ano e meio — cada resultado documentado, caso a caso.</p>
     <div class="hero-cta reveal d3">
       <a class="btn btn-primary" href="#cases">Ver cases com resultados</a>
@@ -812,12 +810,19 @@
     }
   } catch(e){}
 
+  /* Rede de segurança: garante que nada fique invisível para sempre */
+  setTimeout(function(){
+    document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){
+      el.classList.add('visible');
+    });
+  }, 2500);
+
   /* Palavras rotativas com largura fluida */
   try {
     var rotator = document.getElementById('rotator');
     var rotatorWrap = document.getElementById('rotator-wrap');
     if (rotator && rotatorWrap) {
-      var words = ['reter', 'converter', 'escalar', 'vender'];
+      var words = ['resultado', 'alcance', 'vendas', 'retenção'];
       var wi = 0;
       var measurer = document.createElement('span');
       measurer.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;pointer-events:none;';
@@ -825,22 +830,22 @@
       function widthOf(w){ measurer.textContent = w; return measurer.getBoundingClientRect().width; }
       function syncWidth(){ try { rotatorWrap.style.width = widthOf(words[wi]) + 'px'; } catch(e){} }
       if (document.fonts && document.fonts.ready) { document.fonts.ready.then(syncWidth); }
-      setTimeout(syncWidth, 600);
+      setTimeout(syncWidth, 300);
+      setTimeout(syncWidth, 900);
+      setTimeout(syncWidth, 1800);
       window.addEventListener('resize', syncWidth);
-      if (!reduced) {
-        setInterval(function(){
-          rotator.classList.add('out');
-          setTimeout(function(){
-            wi = (wi + 1) % words.length;
-            rotator.textContent = words[wi];
-            syncWidth();
-            rotator.classList.remove('out');
-            rotator.classList.add('in');
-            void rotator.offsetWidth;
-            rotator.classList.remove('in');
-          }, 450);
-        }, 2600);
-      }
+      setInterval(function(){
+        rotator.classList.add('out');
+        setTimeout(function(){
+          wi = (wi + 1) % words.length;
+          rotator.textContent = words[wi];
+          syncWidth();
+          rotator.classList.remove('out');
+          rotator.classList.add('in');
+          void rotator.offsetWidth;
+          rotator.classList.remove('in');
+        }, 450);
+      }, 2600);
     }
   } catch(e){}
 
@@ -949,9 +954,8 @@
             resumeTimer = setTimeout(function(){ paused = false; }, 1200);
           });
         });
-        var reducedPM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         function step(){
-          if (!reducedPM && !paused) pm.scrollLeft += 0.9;
+          if (!paused) pm.scrollLeft += 1.1;
           if (setWidth > 0) {
             if (pm.scrollLeft >= setWidth) pm.scrollLeft -= setWidth;
             if (pm.scrollLeft < 0) pm.scrollLeft += setWidth;
